@@ -1,11 +1,13 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+import ViewUIPlus from 'view-ui-plus';
+import './assets/main.css';
+import $ from 'jquery';
 
-import './assets/main.css'
-
-const app = createApp(App)
-
+const app = createApp(App);
+window.$ = $;
+window.jQuery = $;
 app.use(router)
-
-app.mount('#app')
+    .use(ViewUIPlus)
+    .mount('#app');
