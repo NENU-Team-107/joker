@@ -3,12 +3,6 @@ import * as echarts from "echarts";
 import { onMounted } from "vue";
 
 const drawEcharts = () => {
-  //   fetch("/src/assets/country.json")
-  //     .then((response) => response.json())
-  //       .then((data) => (res0 = data));
-  //     fetch("/src/assets/gdp.json")
-  //       .then((response) => response.json())
-  //       .then((data) => (res1 = data));
   $.when($.getJSON("/src/assets/country.json"), $.getJSON("/src/assets/gdp.json")).done(
     function (res0, res1) {
       var chartDom = document.getElementById("gdp");
@@ -41,9 +35,10 @@ const drawEcharts = () => {
       const flags = res0[0];
       const data = res1[0];
       const years = [];
+      console.log(data);
       for (let i = 0; i < data.length; ++i) {
-        if (years.length === 0 || years[years.length - 1] !== data[i][4]) {
-          years.push(data[i][4]);
+        if (years.length === 0 || years[years.length - 1] !== data[i][3]) {
+          years.push(data[i][3]);
         }
       }
       function getFlag(countryName) {
@@ -54,9 +49,13 @@ const drawEcharts = () => {
           flags.find(function (item) {
             return item.name === countryName;
           }) || {}
-        ).emoji;
+        ).emoji == null
+          ? ""
+          : flags.find(function (item) {
+              return item.name === countryName;
+            }).emoji;
       }
-      let startIndex = 10;
+      let startIndex = 0;
       let startYear = years[startIndex];
       option = {
         grid: {
@@ -75,7 +74,7 @@ const drawEcharts = () => {
         },
         dataset: {
           source: data.slice(1).filter(function (d) {
-            return d[4] === startYear;
+            return d[3] === startYear;
           }),
         },
         yAxis: {
@@ -105,12 +104,12 @@ const drawEcharts = () => {
             type: "bar",
             itemStyle: {
               color: function (param) {
-                return countryColors[param.value[3]] || "#5470c6";
+                return countryColors[param.value[2]] || "#5470c6";
               },
             },
             encode: {
-              x: dimension,
-              y: 3,
+              x: 1,
+              y: 2,
             },
             label: {
               show: true,
@@ -153,7 +152,7 @@ const drawEcharts = () => {
       }
       function updateYear(year) {
         let source = data.slice(1).filter(function (d) {
-          return d[4] === year;
+          return d[3] === year;
         });
         option.series[0].data = source;
         option.graphic.elements[0].style.text = year;
