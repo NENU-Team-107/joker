@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src = 'https://unpkg.com/@antv/l7'></script>
+    <script src = '/node_modules/@antv/g2/dist/g2.min.js'></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <title>Along Years</title>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+<style>
+    html,
+    body,
+    #map {
+        height: 100%;
+        width: 100vw;
+        padding: 0;
+        margin: 0;
+    }
+</style>
+<script>
+const scene = new L7.Scene({
+    id: 'map',
+    map: new L7.GaodeMap({
+        pitch: 70,
+        style: 'dark', // 样式URL
+        center: [2.6125016864608597, 49.359131],
+        zoom: 4.1,
+        token: '44777c023d04078893270a8be6d5c9e0',
+    })
+})
+scene.on('loaded', ()=>{
+    fetch('/src/assets/happiness2022.json')
+  .then(res => res.json())
+  .then(data => {
+    const pointLayer = new L7.PointLayer({})
+    .source(data, {
+      parser: {
+        type: 'json',
+        x: 'longitude',
+        y: 'latitude'
+      }
+    })
+    .shape('name', [ 'cylinder', 'triangleColumn', 'hexagonColumn', 'squareColumn' ])
+    .color('name', [ '#739DFF', '#61FCBF', '#FFDE74', '#FF896F' ])
+    .size('happiness', h => [ 6, 6, Math.floor(h) * 10 ])
+    scene.addLayer(pointLayer)
+  })
+})
+</script>
+</html>
