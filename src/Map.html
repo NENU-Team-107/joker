@@ -2,15 +2,14 @@
 <html lang="zh-CN">
 
 <head>
+
+    <script src = 'https://unpkg.com/@antv/l7'></script>
+    <script src = '/node_modules/@antv/g2/dist/g2.min.js'></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAP</title>
-    <script src='https://unpkg.com/@antv/l7'></script>
-    <script src="https://unpkg.com/@antv/l7-leaflet"></script>
-    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
-        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
-        crossorigin=""></script>
 </head>
 
 <body>
@@ -27,46 +26,146 @@
     }
 </style>
 <script>
-    const map = L.map('map', {
-        minZoom: 1,
-    }).setView([30, 112], 3);
-    const mapType = 'vec';
-    L.tileLayer(
-        'https://t{s}.tianditu.gov.cn/' +
-        mapType +
-        '_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=' +
-        mapType +
-        '&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}&tk=b72aa81ac2b3cae941d1eb213499e15e',
-        {
-            subdomains: ['0', '1', '2', '3', '4', '5', '6', '7'],
-            attribution:
-                '&copy; <a href="http://lbs.tianditu.gov.cn/home.html">天地图 GS(2022)3124号 - 甲测资字1100471</a>',
-        },
-    ).addTo(map);
-    const mapLabelType = 'cva';
-    L.tileLayer(
-        'https://t{s}.tianditu.gov.cn/' +
-        mapLabelType +
-        '_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=' +
-        mapLabelType +
-        '&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}&tk=b72aa81ac2b3cae941d1eb213499e15e',
-        {
-            subdomains: ['0', '1', '2', '3', '4', '5', '6', '7'],
-        },
-    ).addTo(map);
+    const scene = new L7.Scene({
+        id: 'map',
+        map: new L7.GaodeMap({
+            style: 'dark', // 样式URL
+            center: [2.6125016864608597, 49.359131],
+            pitch: 0,
+            zoom: 4.1,
+            token: '44777c023d04078893270a8be6d5c9e0',
+        })
+    })
+    scene.on('loaded', ()=>{
+        addChart();
+        scene.render();
+    });
+    function addChart(){
+        fetch('/src/assets/happiness-all.json')
+            .then((res)=>res.json())
+            .then((data) => {
+                data.node.forEach((item) => {
+                    const el = document.createElement('div');
+                    const itemData = []
+                    let t = 0
+                    for(let x of item.happiness){
+                        t += x[1]
+                        itemData.push({
+                            year: x[1],
+                            count: x[0]                        
+                        })
+                    }
+                    const size = Math.min(Math.floor(t), 70)
+                    const chart = new G2.Chart({
+                        container: el,
+                        width: size,
+                        height: size,
+                        render: 'svg',
+                        padding: 0,
+                        });
+                    chart.legend(false);
+                    chart.data(itemData);
+                    chart.tooltip(false);
 
-    L.marker([30, 112])
-        .addTo(map)
-        .setIcon(
-            new L.Icon({
-                iconUrl:
-                    'https://gw.alipayobjects.com/mdn/rms_5e897d/afts/img/A*6ONoRKNECC0AAAAAAAAAAAAAARQnAQ',
-                iconSize: [16, 16],
-            }),
-        )
-        .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-        .openPopup();
-    const l7layer = new L7Layer().addTo(map);
+                    chart.axis('count', false);
+                    chart.axis('year', false);
+                    chart
+                    .line()
+                    .position('year*count')
+                    chart.render();
+                    const marker = new L7.Marker({
+                        element: el,
+                    }).setLnglat({
+                    lng: item.coordinates[0],
+                    lat: item.coordinates[1],
+                    });
+                    marker.setPopup(
+                        new L7.Popup({
+                            anchor: 'center',
+                        }).setText(item.name)
+                    )
+                    marker.on('mousemove', (e)=>{
+                        marker.getPopup();
+                    })
+                    scene.addMarker(marker);
+                });
+        })
+    }
 </script>
+<!-- <script>
+const scene = new L7.Scene({
+  id: 'map',
+  map: new L7.GaodeMap({
+    style: 'light',
+    center: [2.6125016864608597, 49.359131],
+    zoom: 4,
+    token: '44777c023d04078893270a8be6d5c9e0'
+  }),
+});
+scene.on('loaded', () => {
+  addChart();
+  scene.render();
+});
+function addChart() {
+  fetch(
+    'https://gw.alipayobjects.com/os/basement_prod/0b96cca4-7e83-449a-93d0-2a77053e74ab.json',
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      data.nodes.forEach(function (item) {
+        const el = document.createElement('div');
+        const total =
+          item.gdp.Agriculture + item.gdp.Industry + item.gdp.Service;
 
+        const size = Math.min(parseInt(total / 30000, 10), 70);
+        if (size < 30) {
+          return;
+        }
+        const itemData = [
+          {
+            item: 'Agriculture',
+            count: item.gdp.Agriculture,
+            percent: item.gdp.Agriculture / total,
+          },
+          {
+            item: 'Industry',
+            count: item.gdp.Industry,
+            percent: item.gdp.Industry / total,
+          },
+          {
+            item: 'Service',
+            count: item.gdp.Service,
+            percent: item.gdp.Service / total,
+          },
+        ];
+
+        const chart = new G2.Chart({
+          container: el,
+          width: size,
+          height: size,
+          render: 'svg',
+          padding: 0,
+        });
+        chart.legend(false);
+        chart.data(itemData);
+        chart.tooltip(false);
+
+        chart.axis('count', false);
+        chart.axis('item', false);
+        chart
+          .interval()
+          .position('item*count')
+          .color('item', ['#5CCEA1', '#5D7092', '#5B8FF9']);
+        chart.render();
+        const marker = new L7.Marker({
+          element: el,
+        }).setLnglat({
+          lng: item.coordinates[0],
+          lat: item.coordinates[1],
+        });
+        scene.addMarker(marker);
+      });
+    });
+}
+</script> -->
 </html>
