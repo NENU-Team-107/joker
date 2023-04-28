@@ -14,64 +14,69 @@
     <title>Along Years</title>
 </head>
 <style>
-    .year{
-      position: absolute;
-      z-index: 9999;
+    .year {
+        position: absolute;
+        z-index: 9999;
     }
-    select{
-      appearance: none;
-     -webkit-appearance: none;
-     border:0;
-     outline: none;
+
+    select {
+        appearance: none;
+        -webkit-appearance: none;
+        border: 0;
+        outline: none;
     }
+
     .iselect-body {
-      width: 110px;
-      height: 48px;
-      background: #252525;
-      border-radius: 1px;
-      border: 2px solid #3F4142;
+        width: 110px;
+        height: 48px;
+        background: #252525;
+        border-radius: 1px;
+        border: 2px solid #3F4142;
     }
+
     .ifrom-select {
-      width: 78px;
-      height: 48px;
-      line-height: 48px;
-      margin: 0 18px;
-      background-color: #FFFFFF00;
-      font-size: 22px;
-      font-weight: 400;
-      color: #979797;
+        width: 78px;
+        height: 48px;
+        line-height: 48px;
+        margin: 0 18px;
+        background-color: #FFFFFF00;
+        font-size: 22px;
+        font-weight: 400;
+        color: #979797;
     }
+
     .ifrom-select-background {
-      background: url("/src/tri.png")no-repeat scroll right center transparent;
-      background-size: 15px 15px;
+        background: url("/src/tri.png")no-repeat scroll right center transparent;
+        background-size: 15px 15px;
     }
-  </style>
+</style>
+
 <body>
     <div class="year">
         <lable>choose year</lable>
         <div class="iselect-body">
-        <select class="ifrom-select ifrom-select-background">
-          <option value="">2005</option>
-          <option value="">2006</option>
-          <option value="">2007</option>
-          <option value="">2008</option>
-          <option value="">2009</option>
-          <option value="">2010</option>
-          <option value="">2011</option>
-          <option value="">2012</option>
-          <option value="">2013</option>
-          <option value="">2014</option>
-          <option value="">2015</option>
-          <option value="">2016</option>
-          <option value="">2017</option>
-          <option value="">2018</option>
-          <option value="">2019</option>
-          <option value="">2020</option>
-          <option value="">2021</option>
-          <option value="">2022</option>
-        </select>
-      </div>
-      </div>
+            <select class="ifrom-select ifrom-select-background">
+                <option value="">2005</option>
+                <option value="">2006</option>
+                <option value="">2007</option>
+                <option value="">2008</option>
+                <option value="">2009</option>
+                <option value="">2010</option>
+                <option value="">2011</option>
+                <option value="">2012</option>
+                <option value="">2013</option>
+                <option value="">2014</option>
+                <option value="">2015</option>
+                <option value="">2016</option>
+                <option value="">2017</option>
+                <option value="">2018</option>
+                <option value="">2019</option>
+                <option value="">2020</option>
+                <option value="">2021</option>
+                <option value="">2022</option>
+            </select>
+        </div>
+    </div>
     <div id="map"></div>
 </body>
 <style>
@@ -138,6 +143,36 @@
                 scene.addLayer(lineLayer);
                 scene.addLayer(polyLayer);
                 scene.addLayer(pointLayer);
+                polyLayer.on('mousemove', e => {
+                    if (e.feature.properties.line === undefined) {
+                        return;
+                    }
+                    const el = document.createElement('div');
+                    const size = 200;
+                    const chart = new G2.Chart({
+                        container: el,
+                        width: size,
+                        height: size,
+                        padding: 0,
+                    });
+                    chart.legend(false);
+                    chart.data(e.feature.properties.line);
+                    chart.tooltip(false);
+
+                    chart.axis('count', false);
+                    chart.axis('year', false);
+                    chart
+                        .line()
+                        .position('year*count');
+                    chart.render();
+                    const popup = new L7.Popup({
+                        html: chart,
+                        offsets: [0, 0],
+                        closeButton: false
+                    }).setLnglat(e.lngLat);
+                    scene.addPopup(popup);
+                });
+
             });
     })
 </script>
