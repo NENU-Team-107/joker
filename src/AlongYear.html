@@ -13,8 +13,65 @@
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js'></script>
     <title>Along Years</title>
 </head>
-
+<style>
+    .year{
+      position: absolute;
+      z-index: 9999;
+    }
+    select{
+      appearance: none;
+     -webkit-appearance: none;
+     border:0;
+     outline: none;
+    }
+    .iselect-body {
+      width: 110px;
+      height: 48px;
+      background: #252525;
+      border-radius: 1px;
+      border: 2px solid #3F4142;
+    }
+    .ifrom-select {
+      width: 78px;
+      height: 48px;
+      line-height: 48px;
+      margin: 0 18px;
+      background-color: #FFFFFF00;
+      font-size: 22px;
+      font-weight: 400;
+      color: #979797;
+    }
+    .ifrom-select-background {
+      background: url("/src/tri.png")no-repeat scroll right center transparent;
+      background-size: 15px 15px;
+    }
+  </style>
 <body>
+    <div class="year">
+        <lable>choose year</lable>
+        <div class="iselect-body">
+        <select class="ifrom-select ifrom-select-background">
+          <option value="">2005</option>
+          <option value="">2006</option>
+          <option value="">2007</option>
+          <option value="">2008</option>
+          <option value="">2009</option>
+          <option value="">2010</option>
+          <option value="">2011</option>
+          <option value="">2012</option>
+          <option value="">2013</option>
+          <option value="">2014</option>
+          <option value="">2015</option>
+          <option value="">2016</option>
+          <option value="">2017</option>
+          <option value="">2018</option>
+          <option value="">2019</option>
+          <option value="">2020</option>
+          <option value="">2021</option>
+          <option value="">2022</option>
+        </select>
+      </div>
+      </div>
     <div id="map"></div>
 </body>
 <style>
@@ -28,10 +85,11 @@
     }
 </style>
 <script>
+
     const scene = new L7.Scene({
         id: 'map',
         map: new L7.GaodeMap({
-            style: 'dark', // 样式URL
+            style: 'light', // 样式URL
             center: [2.6125016864608597, 49.359131],
             pitch: 30,
             zoom: 4.1,
